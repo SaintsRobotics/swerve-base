@@ -86,6 +86,15 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
     SmartDashboard.putNumber("odometryX", m_odometry.getPoseMeters().getX());
     SmartDashboard.putNumber("odometryY", m_odometry.getPoseMeters().getY());
+
+    // AdvantageScope Logging
+    double[] logData = {
+      m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
+      m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
+      m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
+      m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
+    };
+    SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
     }
 
   /**
@@ -145,6 +154,15 @@ public class DriveSubsystem extends SubsystemBase {
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
     m_rearRight.setDesiredState(desiredStates[3]);
+
+    // AdvantageScope Logging
+    double[] logData = {
+      desiredStates[0].angle.getDegrees(), desiredStates[0].speedMetersPerSecond,
+      desiredStates[1].angle.getDegrees(), desiredStates[1].speedMetersPerSecond,
+      desiredStates[2].angle.getDegrees(), desiredStates[2].speedMetersPerSecond,
+      desiredStates[3].angle.getDegrees(), desiredStates[3].speedMetersPerSecond,
+    };
+    SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logData);
 
     // Takes the integral of the rotation speed to find the current angle for the
     // simulator
