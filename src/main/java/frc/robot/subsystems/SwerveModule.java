@@ -30,6 +30,9 @@ public class SwerveModule {
   private SwerveModuleState m_state = new SwerveModuleState();
   private double m_distance;
 
+  public double driveOutput;
+  public double turnOutput;
+
   /**
    * Constructs a {@link SwerveModule}.
    *
@@ -88,9 +91,9 @@ public class SwerveModule {
   public void setDesiredState(SwerveModuleState desiredState) {
     m_state = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getAbsolutePosition()));
 
-    final double driveOutput = m_state.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond;
+    driveOutput = m_state.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond;
 
-    final double turnOutput = m_turningPIDController.calculate(m_turningEncoder.getAbsolutePosition(),
+    turnOutput = m_turningPIDController.calculate(m_turningEncoder.getAbsolutePosition(),
         m_state.angle.getRadians());
 
     m_driveMotor.set(driveOutput);

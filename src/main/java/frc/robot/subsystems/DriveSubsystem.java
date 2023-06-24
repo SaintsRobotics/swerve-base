@@ -84,7 +84,9 @@ public class DriveSubsystem extends SubsystemBase {
     m_field.setRobotPose(m_odometry.getPoseMeters());
 
     SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
-  }
+    SmartDashboard.putNumber("odometryX", m_odometry.getPoseMeters().getX());
+    SmartDashboard.putNumber("odometryY", m_odometry.getPoseMeters().getY());
+    }
 
   /**
    * Returns the currently-estimated pose of the robot.
