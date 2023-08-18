@@ -7,7 +7,6 @@ Code for a basic swerve drive base
 * AdvantageScope support
 
 ## TODO/WIP:
-* Heading correction
 * Auton setup
 
 
