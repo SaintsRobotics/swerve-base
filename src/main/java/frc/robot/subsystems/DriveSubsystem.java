@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -51,6 +53,10 @@ public class DriveSubsystem extends SubsystemBase {
   private final AHRS m_gyro = new AHRS();
   private double m_gyroAngle;
 
+  private final Timer m_headingCorrectionTimer = new Timer();
+  private final PIDController m_headingCorrectionPID = new PIDController(0, 0, 0); // TODO: Tune Heading Correction PID Controller
+  private double m_desiredHeading = 0;
+
   private SwerveModulePosition[] m_swerveModulePositions = new SwerveModulePosition[] {
       m_frontLeft.getPosition(),
       m_frontRight.getPosition(),
@@ -66,6 +72,8 @@ public class DriveSubsystem extends SubsystemBase {
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     SmartDashboard.putData("Field", m_field);
+    m_headingCorrectionTimer.restart();
+    m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   @Override
@@ -107,14 +115,26 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+    // Check if current heading should be considered desired heading
+    if (rot == 0 || m_headingCorrectionTimer.hasElapsed(DriveConstants.kHeadingCorrectionTurningStopTime)) {
+      m_desiredHeading = getPose().getRotation().getRadians();
+      m_headingCorrectionTimer.restart();
+    }
+
+    double calculatedRot = rot;
+
+    // Calculate rotation speed using PID if zero rotation input
+    if (rot == 0) {
+      calculatedRot = m_headingCorrectionPID.calculate(getPose().getRotation().getRadians(), m_desiredHeading);
+    }
 
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRot,
                 Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-            : new ChassisSpeeds(xSpeed, ySpeed, rot));
+            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRot));
 
     setModuleStates(swerveModuleStates);
   }
