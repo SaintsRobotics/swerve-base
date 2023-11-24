@@ -36,11 +36,11 @@ public class SwerveModule {
   /**
    * Constructs a {@link SwerveModule}.
    *
-   * @param driveMotorPort     The port of the drive motor.
-   * @param turningMotorPort   The port of the turning motor.
-   * @param turningEncoderPort The port of the turning encoder.
-   * @param driveMotorReversed    Whether the drive motor is reversed.
-   * @param turningEncoderOffset  Offset of the turning encoder.
+   * @param driveMotorPort       The port of the drive motor.
+   * @param turningMotorPort     The port of the turning motor.
+   * @param turningEncoderPort   The port of the turning encoder.
+   * @param driveMotorReversed   Whether the drive motor is reversed.
+   * @param turningEncoderOffset Offset of the turning encoder.
    */
   public SwerveModule(
       int driveMotorPort,
@@ -55,7 +55,7 @@ public class SwerveModule {
     // converts default units to meters per second
     m_driveMotor.getEncoder().setVelocityConversionFactor(
         DriveConstants.kWheelDiameterMeters * Math.PI / 60 / DriveConstants.kDrivingGearRatio);
-    
+
     m_driveMotor.setInverted(driveMotorReversed);
 
     m_turningMotor.setIdleMode(IdleMode.kBrake);
@@ -75,8 +75,10 @@ public class SwerveModule {
   public SwerveModulePosition getPosition() {
     m_distance += m_state.speedMetersPerSecond * Robot.kDefaultPeriod;
 
-    // If the robot is real, then return the swerve module state by reading from the actual encoders
-    // If the robot is simulated, then return the swerve module state using the expected values
+    // If the robot is real, then return the swerve module state by reading from the
+    // actual encoders
+    // If the robot is simulated, then return the swerve module state using the
+    // expected values
     return Robot.isReal()
         ? new SwerveModulePosition(m_driveMotor.getEncoder().getPosition(),
             new Rotation2d(m_turningEncoder.getAbsolutePosition()))

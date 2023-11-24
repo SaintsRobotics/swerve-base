@@ -54,7 +54,7 @@ public class DriveSubsystem extends SubsystemBase {
   private double m_gyroAngle;
 
   private final Timer m_headingCorrectionTimer = new Timer();
-  private final PIDController m_headingCorrectionPID = new PIDController(0, 0, 0); // TODO: Tune Heading Correction PID Controller
+  private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController, 0, 0);
   private double m_desiredHeading = 0;
 
   private SwerveModulePosition[] m_swerveModulePositions = new SwerveModulePosition[] {
@@ -97,13 +97,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     // AdvantageScope Logging
     double[] logData = {
-      m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
-      m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
-      m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
-      m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
+        m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
+        m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
+        m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
+        m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
-    }
+  }
 
   /**
    * Returns the currently-estimated pose of the robot.
@@ -114,27 +114,36 @@ public class DriveSubsystem extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+  /**
+   * Method to drive the robot using joystick info.
+   *
+   * @param xSpeed        Speed of the robot in the x direction (forward).
+   * @param ySpeed        Speed of the robot in the y direction (sideways).
+   * @param rotation      Angular rotation speed of the robot.
+   * @param fieldRelative Whether the provided x and y speeds are relative to the
+   *                      field.
+   */
+  public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
     // Check if current heading should be considered desired heading
-    if (rot == 0 || m_headingCorrectionTimer.hasElapsed(DriveConstants.kHeadingCorrectionTurningStopTime)) {
+    if (rotation == 0 || m_headingCorrectionTimer.hasElapsed(DriveConstants.kHeadingCorrectionTurningStopTime)) {
       m_desiredHeading = getPose().getRotation().getRadians();
       m_headingCorrectionTimer.restart();
     }
 
-    double calculatedRot = rot;
+    double calculatedRotation = rotation;
 
     // Calculate rotation speed using PID if zero rotation input
-    if (rot == 0) {
-      calculatedRot = m_headingCorrectionPID.calculate(getPose().getRotation().getRadians(), m_desiredHeading);
+    if (rotation == 0) {
+      calculatedRotation = m_headingCorrectionPID.calculate(getPose().getRotation().getRadians(), m_desiredHeading);
     }
 
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRot,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
                 Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRot));
+            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
 
     setModuleStates(swerveModuleStates);
   }
@@ -177,10 +186,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     // AdvantageScope Logging
     double[] logData = {
-      desiredStates[0].angle.getDegrees(), desiredStates[0].speedMetersPerSecond,
-      desiredStates[1].angle.getDegrees(), desiredStates[1].speedMetersPerSecond,
-      desiredStates[2].angle.getDegrees(), desiredStates[2].speedMetersPerSecond,
-      desiredStates[3].angle.getDegrees(), desiredStates[3].speedMetersPerSecond,
+        desiredStates[0].angle.getDegrees(), desiredStates[0].speedMetersPerSecond,
+        desiredStates[1].angle.getDegrees(), desiredStates[1].speedMetersPerSecond,
+        desiredStates[2].angle.getDegrees(), desiredStates[2].speedMetersPerSecond,
+        desiredStates[3].angle.getDegrees(), desiredStates[3].speedMetersPerSecond,
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logData);
 

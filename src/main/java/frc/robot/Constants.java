@@ -31,9 +31,9 @@ public final class Constants {
     public static final double kSlowModeScalar = 0.8;
   }
 
-  public static final class DriveConstants { 
+  public static final class DriveConstants {
     // TODO: set motor and encoder constants
-    public static final int kFrontLeftDriveMotorPort = 1; 
+    public static final int kFrontLeftDriveMotorPort = 1;
     public static final int kRearLeftDriveMotorPort = 3;
     public static final int kFrontRightDriveMotorPort = 5;
     public static final int kRearRightDriveMotorPort = 7;
@@ -54,7 +54,7 @@ public final class Constants {
     public static final double kRearRightTurningEncoderOffset = 0;
 
     // TODO: Test motor orientations before driving on an actual robot
-    public static final boolean kFrontLeftDriveMotorReversed = false; 
+    public static final boolean kFrontLeftDriveMotorReversed = false;
     public static final boolean kRearLeftDriveMotorReversed = false;
     public static final boolean kFrontRightDriveMotorReversed = true;
     public static final boolean kRearRightDriveMotorReversed = true;
@@ -65,7 +65,7 @@ public final class Constants {
     /** Distance between front and back wheels on robot (in meters). */
     public static final double kWheelBase = 0.5;
 
-    //* Diameter of each wheel in the SDS MK4i swerve module (in meters) */
+    /** Diameter of each wheel in the SDS MK4i swerve module (in meters) */
     public static final double kWheelDiameterMeters = 0.1;
 
     /** Gear ratio between the motor and the wheel. */
@@ -86,6 +86,8 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = 15.24 / 3;
 
     /** Heading Correction */
-    public static final double kHeadingCorrectionTurningStopTime = 0.2; 
+    public static final double kHeadingCorrectionTurningStopTime = 0.2;
+    // TODO: Tune this PID before running on a robot on the ground
+    public static final double kPHeadingCorrectionController = 5;
   }
 }
