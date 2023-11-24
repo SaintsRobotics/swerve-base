@@ -3,11 +3,13 @@ Code for a basic swerve drive base
 
 ## Features:
 * Swerve drive
+* Heading correction
 * WPILib Sim support
 * AdvantageScope support
 
 ## TODO/WIP:
 * Auton setup
+* Test heading correction
 
 
 ### Sim Controls
