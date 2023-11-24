@@ -35,35 +35,34 @@ public class RobotContainer {
     configureBindings();
 
     m_robotDrive.setDefaultCommand(
-      new RunCommand(
-        () -> m_robotDrive.drive(
-          MathUtil.applyDeadband(
-            -m_driverController.getLeftY(),
-              IOConstants.kControllerDeadband)
-              * DriveConstants.kMaxSpeedMetersPerSecond
-              * (1 - m_driverController
-                .getLeftTriggerAxis()
-                * IOConstants.kSlowModeScalar)
-              * 0.8,
-          MathUtil.applyDeadband(
-            -m_driverController.getLeftX(),
-            IOConstants.kControllerDeadband)
-            * DriveConstants.kMaxSpeedMetersPerSecond
-            * (1 - m_driverController
-              .getLeftTriggerAxis()
-              * IOConstants.kSlowModeScalar)
-            * 0.8,
-          MathUtil.applyDeadband(
-            m_driverController.getRightX(),
-            IOConstants.kControllerDeadband)
-            * DriveConstants.kMaxAngularSpeedRadiansPerSecond
-            * (1 - m_driverController
-              .getLeftTriggerAxis()
-              * IOConstants.kSlowModeScalar)
-            / 2,
-          !m_driverController.getRightBumper()),
-      m_robotDrive)
-    );
+        new RunCommand(
+            () -> m_robotDrive.drive(
+                MathUtil.applyDeadband(
+                    -m_driverController.getLeftY(),
+                    IOConstants.kControllerDeadband)
+                    * DriveConstants.kMaxSpeedMetersPerSecond
+                    * (1 - m_driverController
+                        .getLeftTriggerAxis()
+                        * IOConstants.kSlowModeScalar)
+                    * 0.8,
+                MathUtil.applyDeadband(
+                    -m_driverController.getLeftX(),
+                    IOConstants.kControllerDeadband)
+                    * DriveConstants.kMaxSpeedMetersPerSecond
+                    * (1 - m_driverController
+                        .getLeftTriggerAxis()
+                        * IOConstants.kSlowModeScalar)
+                    * 0.8,
+                MathUtil.applyDeadband(
+                    m_driverController.getRightX(),
+                    IOConstants.kControllerDeadband)
+                    * DriveConstants.kMaxAngularSpeedRadiansPerSecond
+                    * (1 - m_driverController
+                        .getLeftTriggerAxis()
+                        * IOConstants.kSlowModeScalar)
+                    / 2,
+                !m_driverController.getRightBumper()),
+            m_robotDrive));
   }
 
   /**

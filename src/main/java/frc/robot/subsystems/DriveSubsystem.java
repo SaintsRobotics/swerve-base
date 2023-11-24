@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -13,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -51,6 +54,9 @@ public class DriveSubsystem extends SubsystemBase {
   private final AHRS m_gyro = new AHRS();
   private double m_gyroAngle;
 
+  private final Timer m_headingCorrectionTimer = new Timer();
+  private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController,
+      0, 0);
   private SwerveModulePosition[] m_swerveModulePositions = new SwerveModulePosition[] {
       m_frontLeft.getPosition(),
       m_frontRight.getPosition(),
@@ -66,6 +72,8 @@ public class DriveSubsystem extends SubsystemBase {
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     SmartDashboard.putData("Field", m_field);
+    m_headingCorrectionTimer.restart();
+    m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   @Override
@@ -89,13 +97,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     // AdvantageScope Logging
     double[] logData = {
-      m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
-      m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
-      m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
-      m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
+        m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
+        m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
+        m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
+        m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
-    }
+  }
 
   /**
    * Returns the currently-estimated pose of the robot.
@@ -106,15 +114,57 @@ public class DriveSubsystem extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+  /**
+   * Method to drive the robot using joystick info.
+   *
+   * @param xSpeed        Speed of the robot in the x direction (forward).
+   * @param ySpeed        Speed of the robot in the y direction (sideways).
+   * @param rotation      Angular rotation speed of the robot.
+   * @param fieldRelative Whether the provided x and y speeds are relative to the
+   *                      field.
+   */
+  public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
+    // If we are rotating, reset the timer
+    if (rotation != 0) {
+      m_headingCorrectionTimer.reset();
+    }
+
+    /*
+     * Heading correction helps maintain the same heading and
+     * prevents rotational drive while our robot is translating
+     * 
+     * For heading correction we use a timer to ensure that we
+     * lose all rotational momentum before saving the heading
+     * that we want to maintain
+     */
+
+    // TODO: Test heading correction without timer
+    // TODO: Test heading correction using gyro's rotational velocity (if it is 0 then set heading instead of timer)
+
+    // Save our desired rotation to a variable we can add our heading correction adjustments to
+    double calculatedRotation = rotation;
+
+    double currentAngle = MathUtil.angleModulus(m_gyro.getRotation2d().getRadians());
+
+    // If we are not translating or if not enough time has passed since the last
+    // time we rotated
+    if ((xSpeed == 0 && ySpeed == 0)
+        || m_headingCorrectionTimer.get() < DriveConstants.kHeadingCorrectionTurningStopTime) {
+      // Update our desired angle
+      m_headingCorrectionPID.setSetpoint(currentAngle);
+    } else {
+      // If we are translating or if we have not rotated for a long enough time
+      // then maintain our desired angle
+      calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
+    }
 
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot,
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
                 Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-            : new ChassisSpeeds(xSpeed, ySpeed, rot));
+            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
 
     setModuleStates(swerveModuleStates);
   }
@@ -157,10 +207,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     // AdvantageScope Logging
     double[] logData = {
-      desiredStates[0].angle.getDegrees(), desiredStates[0].speedMetersPerSecond,
-      desiredStates[1].angle.getDegrees(), desiredStates[1].speedMetersPerSecond,
-      desiredStates[2].angle.getDegrees(), desiredStates[2].speedMetersPerSecond,
-      desiredStates[3].angle.getDegrees(), desiredStates[3].speedMetersPerSecond,
+        desiredStates[0].angle.getDegrees(), desiredStates[0].speedMetersPerSecond,
+        desiredStates[1].angle.getDegrees(), desiredStates[1].speedMetersPerSecond,
+        desiredStates[2].angle.getDegrees(), desiredStates[2].speedMetersPerSecond,
+        desiredStates[3].angle.getDegrees(), desiredStates[3].speedMetersPerSecond,
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logData);
 
