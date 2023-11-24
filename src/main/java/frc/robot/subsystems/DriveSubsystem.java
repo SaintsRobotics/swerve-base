@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -54,9 +55,8 @@ public class DriveSubsystem extends SubsystemBase {
   private double m_gyroAngle;
 
   private final Timer m_headingCorrectionTimer = new Timer();
-  private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController, 0, 0);
-  private double m_desiredHeading = 0;
-
+  private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController,
+      0, 0);
   private SwerveModulePosition[] m_swerveModulePositions = new SwerveModulePosition[] {
       m_frontLeft.getPosition(),
       m_frontRight.getPosition(),
@@ -124,17 +124,38 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
-    // Check if current heading should be considered desired heading
-    if (rotation == 0 || m_headingCorrectionTimer.hasElapsed(DriveConstants.kHeadingCorrectionTurningStopTime)) {
-      m_desiredHeading = getPose().getRotation().getRadians();
-      m_headingCorrectionTimer.restart();
+    // If we are rotating, reset the timer
+    if (rotation != 0) {
+      m_headingCorrectionTimer.reset();
     }
 
+    /*
+     * Heading correction helps maintain the same heading and
+     * prevents rotational drive while our robot is translating
+     * 
+     * For heading correction we use a timer to ensure that we
+     * lose all rotational momentum before saving the heading
+     * that we want to maintain
+     */
+
+    // TODO: Test heading correction without timer
+    // TODO: Test heading correction using gyro's rotational velocity (if it is 0 then set heading instead of timer)
+
+    // Save our desired rotation to a variable we can add our heading correction adjustments to
     double calculatedRotation = rotation;
 
-    // Calculate rotation speed using PID if zero rotation input
-    if (rotation == 0) {
-      calculatedRotation = m_headingCorrectionPID.calculate(getPose().getRotation().getRadians(), m_desiredHeading);
+    double currentAngle = MathUtil.angleModulus(m_gyro.getRotation2d().getRadians());
+
+    // If we are not translating or if not enough time has passed since the last
+    // time we rotated
+    if ((xSpeed == 0 && ySpeed == 0)
+        || m_headingCorrectionTimer.get() < DriveConstants.kHeadingCorrectionTurningStopTime) {
+      // Update our desired angle
+      m_headingCorrectionPID.setSetpoint(currentAngle);
+    } else {
+      // If we are translating or if we have not rotated for a long enough time
+      // then maintain our desired angle
+      calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
     }
 
     // Depending on whether the robot is being driven in field relative, calculate
