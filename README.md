@@ -6,6 +6,7 @@ Code for a basic swerve drive base
 * Heading correction
 * WPILib Sim support
 * AdvantageScope support
+* Pose estimation
 
 ## TODO/WIP:
 * Auton setup
