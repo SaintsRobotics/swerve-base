@@ -64,6 +64,7 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearRight.getPosition()
   };
 
+  // TODO: Experiment with different std devs in the pose estimator
   private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
       m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d());
 
