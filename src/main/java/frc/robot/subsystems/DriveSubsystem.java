@@ -80,6 +80,12 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // SmartDashboard.putNumberArray("hiiii", new double[] {m_frontLeft.getTurningEncoderPose(), m_frontRight.getTurningEncoderPose(), m_rearLeft.getTurningEncoderPose(), m_rearRight.getTurningEncoderPose()});
+
+    SmartDashboard.putNumber("front left encoder", m_frontLeft.getTurningEncoderPose());
+    SmartDashboard.putNumber("front right encoder", m_frontRight.getTurningEncoderPose());
+    SmartDashboard.putNumber("rear left encoder", m_rearLeft.getTurningEncoderPose());
+    SmartDashboard.putNumber("rear right encoder", m_rearRight.getTurningEncoderPose());
 
     m_swerveModulePositions = new SwerveModulePosition[] {
         m_frontLeft.getPosition(),

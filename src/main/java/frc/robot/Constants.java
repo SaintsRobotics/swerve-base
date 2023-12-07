@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
@@ -48,10 +49,10 @@ public final class Constants {
     public static final int kFrontRightTurningEncoderPort = 18;
     public static final int kRearRightTurningEncoderPort = 17;
 
-    public static final double kFrontLeftTurningEncoderOffset = 0;
-    public static final double kRearLeftTurningEncoderOffset = 0;
-    public static final double kFrontRightTurningEncoderOffset = 0;
-    public static final double kRearRightTurningEncoderOffset = 0;
+    public static final double kFrontLeftTurningEncoderOffset = Math.toDegrees(5.75);
+    public static final double kRearLeftTurningEncoderOffset = Math.toDegrees(2.13);
+    public static final double kFrontRightTurningEncoderOffset = Math.toDegrees(4.45);
+    public static final double kRearRightTurningEncoderOffset = Math.toDegrees(6.15);
 
     // TODO: Test motor orientations before driving on an actual robot
     public static final boolean kFrontLeftDriveMotorReversed = false;
@@ -60,10 +61,10 @@ public final class Constants {
     public static final boolean kRearRightDriveMotorReversed = true;
 
     /** Distance between centers of right and left wheels on robot (in meters). */
-    public static final double kTrackWidth = 0.5;
+    public static final double kTrackWidth = 0.57;
 
     /** Distance between front and back wheels on robot (in meters). */
-    public static final double kWheelBase = 0.5;
+    public static final double kWheelBase = 0.6;
 
     /** Diameter of each wheel in the SDS MK4i swerve module (in meters) */
     public static final double kWheelDiameterMeters = 0.1;

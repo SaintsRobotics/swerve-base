@@ -58,6 +58,8 @@ public class SwerveModule {
 
     m_driveMotor.setInverted(driveMotorReversed);
 
+    m_turningMotor.setInverted(true);
+
     m_turningMotor.setIdleMode(IdleMode.kBrake);
 
     // converts default units of CANCoders to radians
@@ -100,5 +102,9 @@ public class SwerveModule {
 
     m_driveMotor.set(driveOutput);
     m_turningMotor.set(turnOutput);
+  }
+
+  public double getTurningEncoderPose(){
+    return m_turningEncoder.getAbsolutePosition();
   }
 }
