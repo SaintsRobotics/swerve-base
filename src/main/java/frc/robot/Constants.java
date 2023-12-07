@@ -33,20 +33,20 @@ public final class Constants {
 
   public static final class DriveConstants {
     // TODO: set motor and encoder constants
-    public static final int kFrontLeftDriveMotorPort = 1;
-    public static final int kRearLeftDriveMotorPort = 3;
+    public static final int kFrontLeftDriveMotorPort = 9;
+    public static final int kRearLeftDriveMotorPort = 12;
     public static final int kFrontRightDriveMotorPort = 5;
-    public static final int kRearRightDriveMotorPort = 7;
+    public static final int kRearRightDriveMotorPort = 2;
 
-    public static final int kFrontLeftTurningMotorPort = 2;
-    public static final int kRearLeftTurningMotorPort = 4;
-    public static final int kFrontRightTurningMotorPort = 6;
-    public static final int kRearRightTurningMotorPort = 8;
+    public static final int kFrontLeftTurningMotorPort = 7;
+    public static final int kRearLeftTurningMotorPort = 11;
+    public static final int kFrontRightTurningMotorPort = 4;
+    public static final int kRearRightTurningMotorPort = 16;
 
-    public static final int kFrontLeftTurningEncoderPort = 9;
-    public static final int kRearLeftTurningEncoderPort = 10;
-    public static final int kFrontRightTurningEncoderPort = 11;
-    public static final int kRearRightTurningEncoderPort = 12;
+    public static final int kFrontLeftTurningEncoderPort = 19;
+    public static final int kRearLeftTurningEncoderPort = 20;
+    public static final int kFrontRightTurningEncoderPort = 18;
+    public static final int kRearRightTurningEncoderPort = 17;
 
     public static final double kFrontLeftTurningEncoderOffset = 0;
     public static final double kRearLeftTurningEncoderOffset = 0;
