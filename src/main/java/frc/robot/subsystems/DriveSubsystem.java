@@ -149,6 +149,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     double currentAngle = MathUtil.angleModulus(m_gyro.getRotation2d().getRadians());
 
+    /*
     // If we are not translating or if not enough time has passed since the last
     // time we rotated
     if ((xSpeed == 0 && ySpeed == 0)
@@ -159,6 +160,24 @@ public class DriveSubsystem extends SubsystemBase {
       // If we are translating or if we have not rotated for a long enough time
       // then maintain our desired angle
       calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
+    }
+    */
+
+    // Simplified Version of Heading Correction (legible)
+    /*
+     * If we are rotating we don't need heading correction, but if not rotating:
+     * Every 20 ms find heading
+     * or find heading if robot still (therefore proper heading is inherent)
+     * else adjust to proper heading
+     */
+    if (rotation == 0){
+      if (m_headingCorrectionTimer.get() > DriveConstants.kHeadingCorrectionTurningStopTime || xSpeed == 0 && ySpeed == 0){
+        m_headingCorrectionTimer.reset();
+        m_headingCorrectionPID.setSetpoint(currentAngle);
+      }
+      else{
+        calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
+      }
     }
 
     // Depending on whether the robot is being driven in field relative, calculate
