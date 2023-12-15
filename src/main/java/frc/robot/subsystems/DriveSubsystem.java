@@ -125,11 +125,6 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
-    // If we are rotating, reset the timer
-    if (rotation != 0) {
-      m_headingCorrectionTimer.reset();
-    }
-
     /*
      * Heading correction helps maintain the same heading and
      * prevents rotational drive while our robot is translating
@@ -150,26 +145,15 @@ public class DriveSubsystem extends SubsystemBase {
     double currentAngle = MathUtil.angleModulus(m_gyro.getRotation2d().getRadians());
 
     /*
-    // If we are not translating or if not enough time has passed since the last
-    // time we rotated
-    if ((xSpeed == 0 && ySpeed == 0)
-        || m_headingCorrectionTimer.get() < DriveConstants.kHeadingCorrectionTurningStopTime) {
-      // Update our desired angle
-      m_headingCorrectionPID.setSetpoint(currentAngle);
-    } else {
-      // If we are translating or if we have not rotated for a long enough time
-      // then maintain our desired angle
-      calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
-    }
-    */
-
-    // Simplified Version of Heading Correction (legible)
-    /*
-     * If we are rotating we don't need heading correction, but if not rotating:
-     * Every 20 ms find heading
-     * or find heading if robot still (therefore proper heading is inherent)
-     * else adjust to proper heading
+     *  If we are rotating we don't need heading correction
+     *  then, if our interval reaches 200 ms we setpoint the heading
+     *  else, we adjust to proper heading
+     * 
+     *  with the corner case that if the robot is still we must set the heading
      */
+
+    SmartDashboard.putNumber("heading correction timer value", m_headingCorrectionTimer.get());
+
     if (rotation == 0){
       if (m_headingCorrectionTimer.get() > DriveConstants.kHeadingCorrectionTurningStopTime || xSpeed == 0 && ySpeed == 0){
         m_headingCorrectionTimer.reset();
@@ -179,7 +163,6 @@ public class DriveSubsystem extends SubsystemBase {
         calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
       }
     }
-
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
