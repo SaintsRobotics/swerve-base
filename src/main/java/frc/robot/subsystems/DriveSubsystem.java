@@ -102,6 +102,7 @@ public class DriveSubsystem extends SubsystemBase {
     return m_poseEstimator.getEstimatedPosition();
   }
 
+  // Current State TODO:fix
   public double[] getLogDataC() {
     return new double [] {
       m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
@@ -110,6 +111,7 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput, };
   }
 
+  // Desired State TODO:fix
   public double[] getLogDataD() {
     return new double[] {
       m_lastDesiredStates[0].angle.getDegrees(), m_lastDesiredStates[0].speedMetersPerSecond,
