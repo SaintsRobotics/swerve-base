@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
@@ -21,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.VisionSubsystem.Measurement;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -95,7 +98,12 @@ public class DriveSubsystem extends SubsystemBase {
         m_swerveModulePositions);
 
     // TODO: Test accuracy of vision pose measurements before adding them to the pose estimator
-    // m_poseEstimator.update(m_visionSubsystem.getMeasurement(), m_swerveModulePositions)
+    
+    Optional<Measurement> latestVisionUpdate = m_visionSubsystem.getMeasurement();
+    if (!latestVisionUpdate.isEmpty()) {
+    //   Measurement measurement = latestVisionUpdate.get();
+    //   m_poseEstimator.addVisionMeasurement(measurement.pose.toPose2d(), measurement.timestamp, measurement.stdDeviation);
+    }
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
