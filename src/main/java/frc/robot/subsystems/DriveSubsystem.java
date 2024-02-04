@@ -94,8 +94,8 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
 
+    // TODO: Test accuracy of vision pose measurements before adding them to the pose estimator
     // m_poseEstimator.update(m_visionSubsystem.getMeasurement(), m_swerveModulePositions)
-    // actually add the measurement
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
