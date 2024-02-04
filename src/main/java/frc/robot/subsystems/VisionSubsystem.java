@@ -14,11 +14,13 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 
@@ -53,6 +55,8 @@ public class VisionSubsystem extends SubsystemBase {
   private final DoubleSubscriber m_cl;
   private final DoubleSubscriber m_tl;
 
+  private final BooleanTopic m_tv;
+
   /** Creates a new Limelight. */
   public VisionSubsystem() {
     // Provide the limelight with the camera pose relative to the center of the
@@ -63,18 +67,20 @@ public class VisionSubsystem extends SubsystemBase {
     m_botPose = m_visionNetworkTable.getDoubleArrayTopic("botpose_wpiblue").subscribe(null);
     m_cl = m_visionNetworkTable.getDoubleTopic("cl").subscribe(0);
     m_tl = m_visionNetworkTable.getDoubleTopic("tl").subscribe(0);
+
+    m_tv = m_visionNetworkTable.getBooleanTopic("tv");
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("April Tag Visible", m_tv.getEntry(false).get());
   }
 
   public Optional<Measurement> getMeasurement() {
     TimestampedDoubleArray[] updates = m_botPose.readQueue();
 
-    // If we have had no updates since the last time this method ran then return
-    // nothing
+    // If no updates since the last time this method ran then return nothing
     if (updates.length == 0) {
       return Optional.empty();
     }

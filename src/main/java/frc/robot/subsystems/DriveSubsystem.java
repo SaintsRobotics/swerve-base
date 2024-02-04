@@ -69,6 +69,8 @@ public class DriveSubsystem extends SubsystemBase {
       m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
       VisionConstants.kVisionSTDDevs);
 
+  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
+
   private final Field2d m_field = new Field2d();
 
   /** Creates a new DriveSubsystem. */
@@ -91,6 +93,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
+
+    // m_poseEstimator.update(m_visionSubsystem.getMeasurement(), m_swerveModulePositions)
+    // actually add the measurement
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
@@ -142,8 +147,8 @@ public class DriveSubsystem extends SubsystemBase {
      */
 
     // TODO: Test heading correction without timer
-    // TODO: Test heading correction using gyro's rotational velocity (if it is 0
-    // then set heading instead of timer)
+    // TODO: Test heading correction using gyro's rotational velocity 
+    // (if it is 0 then set heading instead of timer)
 
     // Save our desired rotation to a variable we can add our heading correction
     // adjustments to
