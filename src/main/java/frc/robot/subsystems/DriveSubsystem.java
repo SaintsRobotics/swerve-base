@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -64,9 +65,9 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearRight.getPosition()
   };
 
-  // TODO: Experiment with different std devs in the pose estimator
   private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
-      m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d());
+      m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
+      VisionConstants.kVisionSTDDevs);
 
   private final Field2d m_field = new Field2d();
 
@@ -82,10 +83,10 @@ public class DriveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     // SmartDashboard.putNumberArray("hiiii", new double[] {m_frontLeft.getTurningEncoderPose(), m_frontRight.getTurningEncoderPose(), m_rearLeft.getTurningEncoderPose(), m_rearRight.getTurningEncoderPose()});
 
-    SmartDashboard.putNumber("front left encoder", m_frontLeft.getTurningEncoderPose());
-    SmartDashboard.putNumber("front right encoder", m_frontRight.getTurningEncoderPose());
-    SmartDashboard.putNumber("rear left encoder", m_rearLeft.getTurningEncoderPose());
-    SmartDashboard.putNumber("rear right encoder", m_rearRight.getTurningEncoderPose());
+    // SmartDashboard.putNumber("front left encoder", m_frontLeft.getTurningEncoderPose());
+    // SmartDashboard.putNumber("front right encoder", m_frontRight.getTurningEncoderPose());
+    // SmartDashboard.putNumber("rear left encoder", m_rearLeft.getTurningEncoderPose());
+    // SmartDashboard.putNumber("rear right encoder", m_rearRight.getTurningEncoderPose());
 
     m_swerveModulePositions = new SwerveModulePosition[] {
         m_frontLeft.getPosition(),
@@ -94,7 +95,8 @@ public class DriveSubsystem extends SubsystemBase {
         m_rearRight.getPosition()
     };
 
-    m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle), m_swerveModulePositions);
+    m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
+        m_swerveModulePositions);
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
@@ -199,6 +201,10 @@ public class DriveSubsystem extends SubsystemBase {
   public void zeroHeading() {
     m_gyro.reset();
     m_gyroAngle = 0;
+  }
+
+  public void addVisionMeasurement(Pose2d pose, double timestamp) {
+    m_poseEstimator.addVisionMeasurement(pose, timestamp);
   }
 
   /**
