@@ -28,29 +28,25 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kFrontLeftDriveMotorPort,
       DriveConstants.kFrontLeftTurningMotorPort,
       DriveConstants.kFrontLeftTurningEncoderPort,
-      DriveConstants.kFrontLeftDriveMotorReversed,
-      DriveConstants.kFrontLeftTurningEncoderOffset);
+      DriveConstants.kFrontLeftDriveMotorReversed);
 
   private final SwerveModule m_rearLeft = new SwerveModule(
       DriveConstants.kRearLeftDriveMotorPort,
       DriveConstants.kRearLeftTurningMotorPort,
       DriveConstants.kRearLeftTurningEncoderPort,
-      DriveConstants.kRearLeftDriveMotorReversed,
-      DriveConstants.kRearLeftTurningEncoderOffset);
+      DriveConstants.kRearLeftDriveMotorReversed);
 
   private final SwerveModule m_frontRight = new SwerveModule(
       DriveConstants.kFrontRightDriveMotorPort,
       DriveConstants.kFrontRightTurningMotorPort,
       DriveConstants.kFrontRightTurningEncoderPort,
-      DriveConstants.kFrontRightDriveMotorReversed,
-      DriveConstants.kFrontRightTurningEncoderOffset);
+      DriveConstants.kFrontRightDriveMotorReversed);
 
   private final SwerveModule m_rearRight = new SwerveModule(
       DriveConstants.kRearRightDriveMotorPort,
       DriveConstants.kRearRightTurningMotorPort,
       DriveConstants.kRearRightTurningEncoderPort,
-      DriveConstants.kRearRightDriveMotorReversed,
-      DriveConstants.kRearRightTurningEncoderOffset);
+      DriveConstants.kRearRightDriveMotorReversed);
 
   private final AHRS m_gyro = new AHRS();
   private double m_gyroAngle;
@@ -81,12 +77,6 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumberArray("hiiii", new double[] {m_frontLeft.getTurningEncoderPose(), m_frontRight.getTurningEncoderPose(), m_rearLeft.getTurningEncoderPose(), m_rearRight.getTurningEncoderPose()});
-
-    // SmartDashboard.putNumber("front left encoder", m_frontLeft.getTurningEncoderPose());
-    // SmartDashboard.putNumber("front right encoder", m_frontRight.getTurningEncoderPose());
-    // SmartDashboard.putNumber("rear left encoder", m_rearLeft.getTurningEncoderPose());
-    // SmartDashboard.putNumber("rear right encoder", m_rearRight.getTurningEncoderPose());
 
     m_swerveModulePositions = new SwerveModulePosition[] {
         m_frontLeft.getPosition(),
