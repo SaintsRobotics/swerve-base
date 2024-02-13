@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,6 +32,8 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
+
+  private final PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -80,6 +88,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null;
+
+    AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry, m_robotDrive::getChassisSpeeds, m_robotDrive::setModuleStates, null, null, m_robotDrive);
+
+    return AutoBuilder.followPath(path);
   }
 }
