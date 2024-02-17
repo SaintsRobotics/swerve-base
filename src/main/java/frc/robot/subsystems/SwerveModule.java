@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 
@@ -90,6 +91,9 @@ public class SwerveModule {
 
     turnOutput = -m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
         m_state.angle.getRadians());
+
+    SmartDashboard.putNumber("dm" + m_driveMotor.getDeviceId(), desiredState.speedMetersPerSecond);
+    SmartDashboard.putNumber("tm" + m_driveMotor.getDeviceId(), turnOutput);
 
     m_driveMotor.set(driveOutput);
     m_turningMotor.set(turnOutput);

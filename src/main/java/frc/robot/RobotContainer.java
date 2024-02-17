@@ -5,12 +5,13 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,7 +34,7 @@ public class RobotContainer {
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
 
-  private final PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
+  private PathPlannerPath path = PathPlannerPath.fromPathFile("New Path");
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -87,10 +88,22 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
+    var alliance = DriverStation.getAlliance();
+    PathPlannerPath autonPath = path;
+    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+      autonPath = autonPath.flipPath();
+    }
+    m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
 
-    AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry, m_robotDrive::getChassisSpeeds, m_robotDrive::setModuleStates, null, null, m_robotDrive);
+    AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry, m_robotDrive::getChassisSpeeds,
+        m_robotDrive::autonDrive,
+        new HolonomicPathFollowerConfig(new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+                    4.5, // Max module speed, in m/s
+                    0.4, // Drive base radius in meters. Distance from robot center to furthest module.
+            new ReplanningConfig(false, false)),
+            () -> false, m_robotDrive);
 
-    return AutoBuilder.followPath(path);
+    return AutoBuilder.followPath(autonPath);
   }
 }
