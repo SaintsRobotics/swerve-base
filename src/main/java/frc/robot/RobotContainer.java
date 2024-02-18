@@ -34,14 +34,23 @@ public class RobotContainer {
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
 
-  private PathPlannerPath path = PathPlannerPath.fromPathFile("New Path");
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry,
+        m_robotDrive::getChassisSpeeds,
+        m_robotDrive::autonDrive,
+        new HolonomicPathFollowerConfig(
+            new PIDConstants(5, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(5, 0.0, 0.0), // Rotation PID constants
+            4.5, // Max module speed, in m/s
+            0.4, // Drive base radius in meters. Distance from robot center to furthest module.
+            new ReplanningConfig(false, false)),
+        () -> false, m_robotDrive);
 
     m_robotDrive.setDefaultCommand(
         new RunCommand(
@@ -88,22 +97,19 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
+
     var alliance = DriverStation.getAlliance();
     PathPlannerPath autonPath = path;
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-      autonPath = autonPath.flipPath();
+    autonPath = autonPath.flipPath();
     }
     m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
 
-    AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry, m_robotDrive::getChassisSpeeds,
-        m_robotDrive::autonDrive,
-        new HolonomicPathFollowerConfig(new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
-                    4.5, // Max module speed, in m/s
-                    0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-            new ReplanningConfig(false, false)),
-            () -> false, m_robotDrive);
-
     return AutoBuilder.followPath(autonPath);
+
+    // PathPlannerAuto pathPlannerAuto = new PathPlannerAuto("New Auto");
+
+    // return pathPlannerAuto;
   }
 }

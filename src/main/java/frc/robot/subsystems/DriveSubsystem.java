@@ -61,7 +61,8 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearRight.getPosition()
   };
 
-  SwerveModuleState[] swerveModuleStates = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
+  SwerveModuleState[] swerveModuleStates = { new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(),
+      new SwerveModuleState() };
 
   private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
       m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
@@ -107,9 +108,6 @@ public class DriveSubsystem extends SubsystemBase {
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-      
     setModuleStates(swerveModuleStates);
   }
 
@@ -119,7 +117,9 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The pose.
    */
   public Pose2d getPose() {
-    return m_poseEstimator.getEstimatedPosition();
+    Pose2d p = m_poseEstimator.getEstimatedPosition();
+    // System.out.println("getPose() -> " + p);
+    return p;
   }
 
   /**
@@ -180,7 +180,9 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public ChassisSpeeds getChassisSpeeds() {
-    return DriveConstants.kDriveKinematics.toChassisSpeeds(swerveModuleStates);
+    ChassisSpeeds cs = DriveConstants.kDriveKinematics.toChassisSpeeds(swerveModuleStates);
+    // System.out.println("GetChassisSpeeds() -> " + cs);
+    return cs;
   }
 
   /**
@@ -216,6 +218,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_rearLeft.setDesiredState(desiredStates[2]);
@@ -236,10 +240,9 @@ public class DriveSubsystem extends SubsystemBase {
         * Robot.kDefaultPeriod;
   }
 
-  public void autonDrive(ChassisSpeeds desiredChassisSpeeds){
+  public void autonDrive(ChassisSpeeds desiredChassisSpeeds) {
+    // System.out.println("autonDrive(" + desiredChassisSpeeds + ")");
     SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
-    SmartDashboard.putNumber("idk", desiredStates[0].speedMetersPerSecond);
-    // setModuleStates(desiredStates);
     swerveModuleStates = desiredStates;
   }
 
