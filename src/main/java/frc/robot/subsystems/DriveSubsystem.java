@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
@@ -21,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.VisionSubsystem.Measurement;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -68,6 +71,8 @@ public class DriveSubsystem extends SubsystemBase {
       m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
       VisionConstants.kVisionSTDDevs);
 
+  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(); 
+
   private final Field2d m_field = new Field2d();
 
   /** Creates a new DriveSubsystem. */
@@ -92,6 +97,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
+
+    // Optional<Measurement> latestReading = m_visionSubsystem.getMeasurement();
+
+    // if (latestReading.isPresent()) {
+    //   m_poseEstimator.addVisionMeasurement(latestReading.get().pose.toPose2d(), latestReading.get().timestamp);
+    // }
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 

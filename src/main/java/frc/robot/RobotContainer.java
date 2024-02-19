@@ -5,12 +5,15 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -38,19 +41,20 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
 
     AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry,
         m_robotDrive::getChassisSpeeds,
         m_robotDrive::autonDrive,
         new HolonomicPathFollowerConfig(
-            new PIDConstants(5, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(5, 0.0, 0.0), // Rotation PID constants
+            new PIDConstants(1, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(1, 0.0, 0.0), // Rotation PID constants
             4.5, // Max module speed, in m/s
             0.4, // Drive base radius in meters. Distance from robot center to furthest module.
             new ReplanningConfig(false, false)),
         () -> false, m_robotDrive);
+
+    // Configure the trigger bindings
+    configureBindings();
 
     m_robotDrive.setDefaultCommand(
         new RunCommand(
@@ -89,6 +93,10 @@ public class RobotContainer {
   private void configureBindings() {
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
+    
+    // new JoystickButton(m_driverController, Button.kA.value).onTrue(
+    //     AutoBuilder.pathfindToPose(new Pose2d(2.8, 5.5, new Rotation2d()), new PathConstraints(
+    //         DriveConstants.kMaxSpeedMetersPerSecond - 1, 5, DriveConstants.kMaxAngularSpeedRadiansPerSecond - 1, 5)));
   }
 
   /**
@@ -97,12 +105,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
+    PathPlannerPath path = PathPlannerPath.fromPathFile("New New Path");
 
     var alliance = DriverStation.getAlliance();
     PathPlannerPath autonPath = path;
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-    autonPath = autonPath.flipPath();
+      autonPath = autonPath.flipPath();
     }
     m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
 
