@@ -80,8 +80,6 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putData("Field", m_field);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
-
-    SmartDashboard.putBoolean("i know it ", false);
   }
 
   @Override
@@ -188,8 +186,6 @@ public class DriveSubsystem extends SubsystemBase {
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
                 Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
             : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
-
-    SmartDashboard.putBoolean("i know it ", true);
   }
 
   public ChassisSpeeds getChassisSpeeds() {

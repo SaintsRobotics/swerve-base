@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers.DoubleSerializer;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -23,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.AlignCommand;
+import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 /*
@@ -41,6 +47,17 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    DoubleSupplier x = () -> m_driverController.getLeftX();
+    DoubleSupplier y = () -> m_driverController.getLeftY();
+    DoubleSupplier rot = () -> m_driverController.getRightX();
+    
+    BooleanSupplier fieldRelative = () -> true;
+
+    Command m_defaultMoveCommand = new MoveCommand(m_robotDrive)
+        .withXSpeedSupplier(x)
+        .withYSpeedSupplier(y)
+        .withRotSpeedSupplier(rot)
+        .withFieldRelativeSupplier(fieldRelative);
 
     AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry,
         m_robotDrive::getChassisSpeeds,
@@ -56,35 +73,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    m_robotDrive.setDefaultCommand(
-        new RunCommand(
-            () -> m_robotDrive.drive(
-                MathUtil.applyDeadband(
-                    -m_driverController.getLeftY(),
-                    IOConstants.kControllerDeadband)
-                    * DriveConstants.kMaxSpeedMetersPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    * 0.8,
-                MathUtil.applyDeadband(
-                    -m_driverController.getLeftX(),
-                    IOConstants.kControllerDeadband)
-                    * DriveConstants.kMaxSpeedMetersPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    * 0.8,
-                MathUtil.applyDeadband(
-                    -m_driverController.getRightX(),
-                    IOConstants.kControllerDeadband)
-                    * DriveConstants.kMaxAngularSpeedRadiansPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    / 2,
-                !m_driverController.getRightBumper()),
-            m_robotDrive));
+    m_robotDrive.setDefaultCommand(m_defaultMoveCommand);
   }
 
   /**
