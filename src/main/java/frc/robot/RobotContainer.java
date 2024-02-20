@@ -46,11 +46,11 @@ public class RobotContainer {
         m_robotDrive::getChassisSpeeds,
         m_robotDrive::autonDrive,
         new HolonomicPathFollowerConfig(
-            new PIDConstants(1, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(1, 0.0, 0.0), // Rotation PID constants
+            new PIDConstants(5, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(5, 0.0, 0.0), // Rotation PID constants
             4.5, // Max module speed, in m/s
             0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-            new ReplanningConfig(false, false)),
+            new ReplanningConfig(true, true)),
         () -> false, m_robotDrive);
 
     // Configure the trigger bindings
@@ -94,7 +94,7 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
     
-    // new JoystickButton(m_driverController, Button.kA.value).onTrue(
+    // new JoystickButton(m_driverController, Button.kA.value).whileTrue(
     //     AutoBuilder.pathfindToPose(new Pose2d(2.8, 5.5, new Rotation2d()), new PathConstraints(
     //         DriveConstants.kMaxSpeedMetersPerSecond - 1, 5, DriveConstants.kMaxAngularSpeedRadiansPerSecond - 1, 5)));
   }
