@@ -51,7 +51,7 @@ public class MoveCommand extends Command {
   @Override
   public void end(boolean interrupted) {}
 
-  // Returns true when the command should end.
+  // Default Command should always return false
   @Override
   public boolean isFinished() {
     return false;
