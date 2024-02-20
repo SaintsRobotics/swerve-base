@@ -98,11 +98,13 @@ public class DriveSubsystem extends SubsystemBase {
     m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         m_swerveModulePositions);
 
-    // Optional<Measurement> latestReading = m_visionSubsystem.getMeasurement();
+    Optional<Measurement> latestReading = m_visionSubsystem.getMeasurement();
 
-    // if (latestReading.isPresent()) {
-    //   m_poseEstimator.addVisionMeasurement(latestReading.get().pose.toPose2d(), latestReading.get().timestamp);
-    // }
+    // SmartDashboard.putBoolean("reading present", latestReading.isPresent());
+
+    if (latestReading.isPresent()) {
+      m_poseEstimator.addVisionMeasurement(latestReading.get().pose.toPose2d(), latestReading.get().timestamp);
+    }
 
     m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 

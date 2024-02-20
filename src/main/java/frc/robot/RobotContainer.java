@@ -114,7 +114,8 @@ public class RobotContainer {
     }
     m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
 
-    return AutoBuilder.followPath(autonPath);
+    // return AutoBuilder.followPath(autonPath);
+    return null;
 
     // PathPlannerAuto pathPlannerAuto = new PathPlannerAuto("New Auto");
 
