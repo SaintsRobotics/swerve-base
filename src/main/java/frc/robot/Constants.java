@@ -32,7 +32,7 @@ public final class Constants {
   public static final class IOConstants {
     public static final int kDriverControllerPort = 0;
 
-    public static final double kControllerDeadband = 0.2;
+    public static final double kControllerDeadband = 0.05;
     public static final double kSlowModeScalar = 0.8;
     public static final double kControllerSensitivity = 0.8;
   }

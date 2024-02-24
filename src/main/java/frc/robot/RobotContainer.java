@@ -65,16 +65,16 @@ public class RobotContainer {
                     * DriveConstants.kMaxSpeedMetersPerSecond
                     * (1 - m_driverController
                         .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    * 0.8,
+                        * IOConstants.kSlowModeScalar),
+                    // * 0.8,
                 MathUtil.applyDeadband(
                     -m_driverController.getLeftX(),
                     IOConstants.kControllerDeadband)
                     * DriveConstants.kMaxSpeedMetersPerSecond
                     * (1 - m_driverController
                         .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
-                    * 0.8,
+                        * IOConstants.kSlowModeScalar),
+                    // * 0.8,
                 MathUtil.applyDeadband(
                     -m_driverController.getRightX(),
                     IOConstants.kControllerDeadband)
@@ -114,8 +114,8 @@ public class RobotContainer {
     }
     m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
 
-    // return AutoBuilder.followPath(autonPath);
-    return null;
+    return AutoBuilder.followPath(autonPath);
+    // return null;
 
     // PathPlannerAuto pathPlannerAuto = new PathPlannerAuto("New Auto");
 
