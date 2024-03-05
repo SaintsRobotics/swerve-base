@@ -1,4 +1,11 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "window": {
+        "visible": false
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
@@ -9,6 +16,7 @@
       "/LiveWindow/Ungrouped/PIDController[5]": "PIDController",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d"
     },
     "windows": {
@@ -27,6 +35,9 @@
   },
   "NetworkTables": {
     "transitory": {
+      "PathPlanner": {
+        "open": true
+      },
       "SmartDashboard": {
         "Field": {
           "open": true
@@ -51,7 +62,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 338,
+          "height": -11,
           "series": [
             {
               "color": [
@@ -64,7 +75,10 @@
             }
           ]
         }
-      ]
+      ],
+      "window": {
+        "visible": false
+      }
     }
   }
 }

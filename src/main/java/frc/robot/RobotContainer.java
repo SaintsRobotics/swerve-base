@@ -36,7 +36,6 @@ import frc.robot.subsystems.DriveSubsystem;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final SendableChooser<Command> autoChooser;
 
@@ -45,9 +44,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", autoChooser);
-
     AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry,
         m_robotDrive::getChassisSpeeds,
         m_robotDrive::autonDrive,
@@ -59,6 +55,8 @@ public class RobotContainer {
             new ReplanningConfig(true, true)),
         () -> false, m_robotDrive);
 
+    autoChooser = AutoBuilder.buildAutoChooser("Sample");
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     // Configure the trigger bindings
     configureBindings();
 
@@ -111,16 +109,17 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    Command follow = autoChooser.getSelected();
-    PathPlannerPath path = PathPlannerPath.fromPathFile(follow.getName());
+    // Command follow = autoChooser.getSelected();
+    // PathPlannerPath path = PathPlannerPath.fromPathFile(follow.getName());
 
-    var alliance = DriverStation.getAlliance();
-    PathPlannerPath autonPath = path;
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-      autonPath = autonPath.flipPath();
-    }
-    m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
+    // var alliance = DriverStation.getAlliance();
+    // PathPlannerPath autonPath = path;
+    // if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+    //   autonPath = autonPath.flipPath();
+    // }
+    // m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
 
-    return AutoBuilder.followPath(autonPath);
+    // return AutoBuilder.followPath(autonPath);
+    return autoChooser.getSelected();
   }
 }
