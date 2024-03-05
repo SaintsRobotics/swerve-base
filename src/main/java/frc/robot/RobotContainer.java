@@ -17,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -36,11 +38,15 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
+  private final SendableChooser<Command> autoChooser;
+
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
     AutoBuilder.configureHolonomic(m_robotDrive::getPose, m_robotDrive::resetOdometry,
         m_robotDrive::getChassisSpeeds,
@@ -105,7 +111,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    PathPlannerPath path = PathPlannerPath.fromPathFile("New New Path");
+    Command follow = autoChooser.getSelected();
+    PathPlannerPath path = PathPlannerPath.fromPathFile(follow.getName());
 
     var alliance = DriverStation.getAlliance();
     PathPlannerPath autonPath = path;
@@ -115,10 +122,5 @@ public class RobotContainer {
     m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
 
     return AutoBuilder.followPath(autonPath);
-    // return null;
-
-    // PathPlannerAuto pathPlannerAuto = new PathPlannerAuto("New Auto");
-
-    // return pathPlannerAuto;
   }
 }
