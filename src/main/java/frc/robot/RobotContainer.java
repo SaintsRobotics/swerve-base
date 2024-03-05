@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -39,6 +42,7 @@ public class RobotContainer {
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
   private final SendableChooser<Command> autoChooser;
 
+  private BooleanSupplier shouldFlip = () -> false;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -53,7 +57,8 @@ public class RobotContainer {
             4.5, // Max module speed, in m/s
             0.4, // Drive base radius in meters. Distance from robot center to furthest module.
             new ReplanningConfig(true, true)),
-        () -> false, m_robotDrive);
+        shouldFlip, m_robotDrive);
+
 
     autoChooser = AutoBuilder.buildAutoChooser("Sample");
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -109,17 +114,16 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // Command follow = autoChooser.getSelected();
-    // PathPlannerPath path = PathPlannerPath.fromPathFile(follow.getName());
+    Command path = autoChooser.getSelected();
 
-    // var alliance = DriverStation.getAlliance();
-    // PathPlannerPath autonPath = path;
-    // if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-    //   autonPath = autonPath.flipPath();
-    // }
-    // m_robotDrive.resetOdometry(autonPath.getPreviewStartingHolonomicPose());
+    var alliance = DriverStation.getAlliance();
+    Command autonPath = path;
+    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+        shouldFlip = ()->true;
+    }
 
-    // return AutoBuilder.followPath(autonPath);
-    return autoChooser.getSelected();
+    //Reset Odometry is done by setting a starting pose in an AUTO
+    //TODO: could theoretically move this code for flipping into the initialization itself
+    return path;
   }
 }
