@@ -28,7 +28,7 @@ public class FastPoly {
     private final int[] ci = new int[2];
 
     
-    public FastPoly(int sides, Point[] points, Point pos) { //NOTE: only convex polygons will work //TODO: enforce concave
+    public FastPoly(int sides, Point[] points, Point pos, double vx, double vy) { //NOTE: only convex polygons will work //TODO: enforce convex
         this.sides = sides;
         this.points = points;
         ltlims = new double[sides];
@@ -41,8 +41,8 @@ public class FastPoly {
         for (int i = 0; i < sides-1; i++) {
             ci[0] = i;
             ci[1] = i+1;
-            ideal = solveCI(pos);
-            if (!(exceedLim(ideal, ci[0], Direction.DIRECTION_CCW) || exceedLim(ideal, ci[1], Direction.DIRECTION_CW))) {
+            ideal = solveCI(pos, vx, vy);
+            if (!(exceedLim(pos, ideal, ci[0], Direction.DIRECTION_CCW) || exceedLim(pos, ideal, ci[1], Direction.DIRECTION_CW))) {
                 sk = false;
                 break;
             }
@@ -65,36 +65,59 @@ public class FastPoly {
         }
     }
 
-    private Point solveCI(Point pos) {
+    private Point solveCI(Point pos, double vx, double vy) {
+        final double y1 = points[ci[0]].y;
+        final double y2 = points[ci[1]].y;
+        if (y1 == y2) { //m2 = infinity
+            final double m1 = vx/vy;
+            return new Point((y1 - pos.y + m1 * pos.x) / m1, y1);
+        }
 
-        return new Point(0, 0); //TODO: implement
+        final double x2 = points[ci[1]].x;
+        final double m1 = vx/vy;
+        final double m2 = (points[ci[0]].x - x2)/(y1 - y2);
+
+        final double ypmm1xp = pos.y - m1 * pos.x;
+
+        final double x = (m2 * x2 + ypmm1xp - y2) / (m2 - m1);
+        return new Point(x, x * m1 + ypmm1xp);
+
+        /*
+         *  -m1 1   -m1x1+y1
+         *  -m2 1   -m2x2+y2
+         */
     }
 
-    private boolean exceedLim(Point pos, int i, Direction dir) {
-
-        return false; //TODO: implement using ltlims
+    private boolean exceedLim(Point pos, Point sol, int i, Direction dir) {
+        final Point rbpxo = new Point(pos.x + 1, pos.y);
+        final double bsq = pos.cdsq(sol);
+        final double lim = Math.acos((rbpxo.cdsq(sol) - bsq - 1) / (2 * Math.sqrt(bsq)));
+        if (dir == Direction.DIRECTION_CW) {
+            return lim >= ltlims[i];
+        }
+        return lim < ltlims[i];
     }
 
     // get required acceleration
     public double calc(Point pos, double vx, double vy) { //NOTE: velocities are field relative
-        Point ideal = solveCI(pos);
+        Point ideal = solveCI(pos, vx, vy);
         updateLims(pos);
 
-        if (exceedLim(ideal, ci[0], Direction.DIRECTION_CCW)) {
+        if (exceedLim(pos, ideal, ci[0], Direction.DIRECTION_CCW)) {
             do {
                 ci[0]--;
                 if (ci[0] == -1) ci[0] = sides-1;
-                ideal = solveCI(pos);
-            } while (exceedLim(ideal, ci[0], Direction.DIRECTION_CCW));
+                ideal = solveCI(pos, vx, vy);
+            } while (exceedLim(pos, ideal, ci[0], Direction.DIRECTION_CCW));
             ci[1] = ci[0]+1;
             if (ci[1] == sides) ci[1] = 0;
         }
-        else if (exceedLim(ideal, ci[1], Direction.DIRECTION_CW)) {
+        else if (exceedLim(pos, ideal, ci[1], Direction.DIRECTION_CW)) {
             do {
                 ci[1]++;
                 if (ci[1] == sides) ci[1] = 0;
-                ideal = solveCI(pos);
-            } while (exceedLim(ideal, ci[1], Direction.DIRECTION_CW));
+                ideal = solveCI(pos, vx, vy);
+            } while (exceedLim(pos, ideal, ci[1], Direction.DIRECTION_CW));
             ci[0] = ci[1]-1;
             if (ci[0] == -1) ci[0] = sides-1;
         }
