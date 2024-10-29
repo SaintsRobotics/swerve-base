@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.utils.FastPoly;
+import frc.robot.utils.FastPoly.PolySource;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
@@ -71,11 +73,15 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Field2d m_field = new Field2d();
 
+  private final FastPoly m_polySolver;
+
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     SmartDashboard.putData("Field", m_field);
     m_headingCorrectionTimer.restart();
     m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
+
+    m_polySolver = new FastPoly(PolySource.POLY_SOURCE_TEST_SQUARE, FastPoly.Point.FromPose(getPose()));
   }
 
   @Override
@@ -162,7 +168,22 @@ public class DriveSubsystem extends SubsystemBase {
       // then maintain our desired angle
       calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
     }
+    
+    final ChassisSpeeds robotRelative = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
+                Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle));
 
+    final double vx = fieldRelative ? xSpeed : robotRelative.vxMetersPerSecond;
+    final double vy = fieldRelative ? ySpeed : robotRelative.vyMetersPerSecond;
+
+    final double scale = m_polySolver.calc(FastPoly.Point.FromPose(getPose()), vx, vy);
+    final double inv = Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2)); // For larger polygons (area wise), it may be better to instead compare with the square of scale and take the square root only when calculating the scalar
+
+    if (scale < inv) {
+      final double scalar = scale/inv;
+      xSpeed *= scalar;
+      ySpeed *= scalar;
+    }
+    
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
