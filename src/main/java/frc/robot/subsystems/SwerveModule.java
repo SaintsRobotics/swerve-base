@@ -9,7 +9,7 @@ import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkFlex;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,8 +19,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
 
 public class SwerveModule {
-  private final CANSparkMax m_driveMotor;
-  private final CANSparkMax m_turningMotor;
+  private final CANSparkFlex m_driveMotor;
+  private final CANSparkFlex m_turningMotor;
 
   private final CANcoder m_turningEncoder;
   private final CANcoderConfigurator m_turningEncoderConfigurator;
@@ -49,8 +49,8 @@ public class SwerveModule {
       int turningEncoderPort,
       boolean driveMotorReversed,
       double turningEncoderOffset) {
-    m_driveMotor = new CANSparkMax(driveMotorPort, MotorType.kBrushless);
-    m_turningMotor = new CANSparkMax(turningMotorPort, MotorType.kBrushless);
+    m_driveMotor = new CANSparkFlex(driveMotorPort, MotorType.kBrushless);
+    m_turningMotor = new CANSparkFlex(turningMotorPort, MotorType.kBrushless);
     m_turningEncoder = new CANcoder(turningEncoderPort);
     m_turningEncoderConfigurator = m_turningEncoder.getConfigurator();
 
