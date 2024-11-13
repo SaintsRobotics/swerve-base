@@ -37,7 +37,7 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    // TODO: set motor and encoder constants
+    // TODO: set motor and encoder constants, ensure motor ids match pdp ids
     public static final int kFrontLeftDriveMotorPort = 1;
     public static final int kRearLeftDriveMotorPort = 3;
     public static final int kFrontRightDriveMotorPort = 5;

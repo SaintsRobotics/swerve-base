@@ -51,8 +51,8 @@ public class SwerveModule {
       int turningEncoderPort,
       boolean driveMotorReversed,
       double turningEncoderOffset) {
-    m_driveMotor = new PriorityMotor(driveMotorPort, MotorType.kBrushless, new AntiBrownout.ReactiveMotorProfile(driveMotorPort, ReactiveMotorProfile.MotorType.TYPE_REV_BRUSHLESS_NEO));
-    m_turningMotor = new PriorityMotor(turningMotorPort, MotorType.kBrushless, new AntiBrownout.ReactiveMotorProfile(turningMotorPort, ReactiveMotorProfile.MotorType.TYPE_REV_BRUSHLESS_NEO));
+    m_driveMotor = new PriorityMotor(driveMotorPort, MotorType.kBrushless, new AntiBrownout.ReactiveMotorProfile(driveMotorPort, ReactiveMotorProfile.MotorType.TYPE_REV_BRUSHLESS_NEO11));
+    m_turningMotor = new PriorityMotor(turningMotorPort, MotorType.kBrushless, new AntiBrownout.ReactiveMotorProfile(turningMotorPort, ReactiveMotorProfile.MotorType.TYPE_REV_BRUSHLESS_NEO11));
     m_turningEncoder = new CANcoder(turningEncoderPort);
     m_turningEncoderConfigurator = m_turningEncoder.getConfigurator();
 
