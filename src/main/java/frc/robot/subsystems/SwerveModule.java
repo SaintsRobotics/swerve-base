@@ -15,8 +15,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.AntiBrownout;
 import frc.robot.Robot;
 import frc.robot.AntiBrownout.PriorityMotor;
+import frc.robot.AntiBrownout.ReactiveMotorProfile;
 
 public class SwerveModule {
   private final PriorityMotor m_driveMotor;
@@ -49,8 +51,8 @@ public class SwerveModule {
       int turningEncoderPort,
       boolean driveMotorReversed,
       double turningEncoderOffset) {
-    m_driveMotor = new PriorityMotor(driveMotorPort, MotorType.kBrushless);
-    m_turningMotor = new PriorityMotor(turningMotorPort, MotorType.kBrushless);
+    m_driveMotor = new PriorityMotor(driveMotorPort, MotorType.kBrushless, new AntiBrownout.ReactiveMotorProfile(driveMotorPort, ReactiveMotorProfile.MotorType.TYPE_REV_BRUSHLESS_NEO));
+    m_turningMotor = new PriorityMotor(turningMotorPort, MotorType.kBrushless, new AntiBrownout.ReactiveMotorProfile(turningMotorPort, ReactiveMotorProfile.MotorType.TYPE_REV_BRUSHLESS_NEO));
     m_turningEncoder = new CANcoder(turningEncoderPort);
     m_turningEncoderConfigurator = m_turningEncoder.getConfigurator();
 

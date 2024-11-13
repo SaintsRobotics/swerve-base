@@ -116,4 +116,16 @@ public final class Constants {
     public static final double kFieldLength = 16.54175;
   }
 
+  public static final class AntiBrownoutConstants {
+    public static final double kStage1Thresh = 6.8d; //TODO: choose a suitible value for the robot for Stage1 ONLY. Roborio2 Only
+    public static final double kStage2Thresh = 6.3d;
+    public static final double kStage25Thresh = 4.65d;
+    public static final double kStage3Thresh = 4.5;
+
+    public static final double kMaxCurrentDraw = 180; //TODO: choose a suitible value for the average competition battery (or use a Sendable chooser)
+
+    public static final class RevBrushlessNeoConstants {
+      public static final double kEmpiricalPeakPowerOutput = 406d; //Watts
+    }
+  }
 }
