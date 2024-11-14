@@ -183,7 +183,13 @@ public class AntiBrownout {
         /**
          * Internal highest priority of the setpoint
          */
-        private int m_priority;
+        private int m_setPriority;
+
+        /**
+         * Internal priority of the motor
+         */
+        private final int m_priority;
+
 
         /**
          * Whether the motor requires an update
@@ -196,18 +202,33 @@ public class AntiBrownout {
         private MotorProfile m_profile;
 
         /**
-         * Creates a new PriorityMotor
+         * Creates a new PriorityMotor with motor priority zero
          * 
          * @param deviceId The motor id
          * @param type     The type of motor
          * @param profile  The profile for the motor
          */
         public PriorityMotor(int deviceId, MotorType type, MotorProfile profile) {
+            this(deviceId, type, profile, 0);
+        }
+
+        /**
+         * Creates a new PriorityMotor
+         * 
+         * @param deviceId The motor id
+         * @param type     The type of motor
+         * @param profile  The profile for the motor
+         * @param priority The positive priority of the motor. Undefined behavior if negative
+         */
+        public PriorityMotor(int deviceId, MotorType type, MotorProfile profile, int priority) {
             super(deviceId, type);
 
             m_speed = 0;
             m_update = false;
             m_profile = profile;
+            m_priority = Math.abs(priority);
+
+            m_setPriority = 0;
 
             m_defaultInstance.register(this);
         }
@@ -226,14 +247,14 @@ public class AntiBrownout {
          * Sets the speed for the motor with a non-zero assignment priority
          * 
          * @param speed    The speed to be set. Value should be between -1 and 1
-         * @param priority The positive priority of the assignment
+         * @param setPriority The priority of the assignment
          */
-        public void set(double speed, int priority) {
-            if (priority >= m_priority) {
+        public void set(double speed, int setPriority) {
+            if (setPriority >= m_setPriority) {
                 m_speed = speed;
-                m_priority = Math.abs(priority);
+                m_setPriority = setPriority;
+                m_update = true;
             }
-            m_update = true;
         }
 
         /**
@@ -245,7 +266,7 @@ public class AntiBrownout {
                 return;
 
             super.set(m_speed);
-            m_priority = 0;
+            m_setPriority = 0;
             m_update = false;
         }
 
