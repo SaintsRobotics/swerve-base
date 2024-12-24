@@ -24,86 +24,77 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
 
 public class DriveSubsystem extends SubsystemBase {
-  private final SwerveModule m_frontLeft = new SwerveModule(
+  private final SwerveModule frontLeft = new SwerveModule(
       DriveConstants.kFrontLeftDriveMotorPort,
       DriveConstants.kFrontLeftTurningMotorPort,
       DriveConstants.kFrontLeftTurningEncoderPort,
       DriveConstants.kFrontLeftDriveMotorReversed,
       DriveConstants.kFrontLeftTurningEncoderOffset);
 
-  private final SwerveModule m_rearLeft = new SwerveModule(
+  private final SwerveModule rearLeft = new SwerveModule(
       DriveConstants.kRearLeftDriveMotorPort,
       DriveConstants.kRearLeftTurningMotorPort,
       DriveConstants.kRearLeftTurningEncoderPort,
       DriveConstants.kRearLeftDriveMotorReversed,
       DriveConstants.kRearLeftTurningEncoderOffset);
 
-  private final SwerveModule m_frontRight = new SwerveModule(
+  private final SwerveModule frontRight = new SwerveModule(
       DriveConstants.kFrontRightDriveMotorPort,
       DriveConstants.kFrontRightTurningMotorPort,
       DriveConstants.kFrontRightTurningEncoderPort,
       DriveConstants.kFrontRightDriveMotorReversed,
       DriveConstants.kFrontRightTurningEncoderOffset);
 
-  private final SwerveModule m_rearRight = new SwerveModule(
+  private final SwerveModule rearRight = new SwerveModule(
       DriveConstants.kRearRightDriveMotorPort,
       DriveConstants.kRearRightTurningMotorPort,
       DriveConstants.kRearRightTurningEncoderPort,
       DriveConstants.kRearRightDriveMotorReversed,
       DriveConstants.kRearRightTurningEncoderOffset);
 
-  private final AHRS m_gyro = new AHRS();
-  private double m_gyroAngle;
-
-  private final Timer m_headingCorrectionTimer = new Timer();
-  private final PIDController m_headingCorrectionPID = new PIDController(DriveConstants.kPHeadingCorrectionController,
-      0, 0);
-  private SwerveModulePosition[] m_swerveModulePositions = new SwerveModulePosition[] {
-      m_frontLeft.getPosition(),
-      m_frontRight.getPosition(),
-      m_rearLeft.getPosition(),
-      m_rearRight.getPosition()
+  private final AHRS gyro = new AHRS();
+  private double GYRO_ANGLE;
+  private SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[] {
+      frontLeft.getPosition(),
+      frontRight.getPosition(),
+      rearLeft.getPosition(),
+      rearRight.getPosition()
   };
-
-  private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
-      m_gyro.getRotation2d(), m_swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
+  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics,
+      gyro.getRotation2d(), swerveModulePositions, new Pose2d(), VisionConstants.kOdometrySTDDevs,
       VisionConstants.kVisionSTDDevs);
+  private final Field2d field = new Field2d();
 
-  private final Field2d m_field = new Field2d();
-
-  /** Creates a new DriveSubsystem. */
+  // Creates a new DriveSubsystem.
   public DriveSubsystem() {
-    SmartDashboard.putData("Field", m_field);
-    m_headingCorrectionTimer.restart();
-    m_headingCorrectionPID.enableContinuousInput(-Math.PI, Math.PI);
+    SmartDashboard.putData("Field", field);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    m_swerveModulePositions = new SwerveModulePosition[] {
-        m_frontLeft.getPosition(),
-        m_frontRight.getPosition(),
-        m_rearLeft.getPosition(),
-        m_rearRight.getPosition()
+    swerveModulePositions = new SwerveModulePosition[] {
+        frontLeft.getPosition(),
+        frontRight.getPosition(),
+        rearLeft.getPosition(),
+        rearRight.getPosition()
     };
 
-    m_poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
-        m_swerveModulePositions);
+   poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle), swerveModulePositions);
 
-    m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+    field.setRobotPose(m_poseEstimator.getEstimatedPosition());
 
-    SmartDashboard.putNumber("gyro angle", m_gyro.getAngle());
-    SmartDashboard.putNumber("odometryX", m_poseEstimator.getEstimatedPosition().getX());
-    SmartDashboard.putNumber("odometryY", m_poseEstimator.getEstimatedPosition().getY());
+    SmartDashboard.putNumber("gyro angle", gyro.getAngle());
+    SmartDashboard.putNumber("odometryX", poseEstimator.getEstimatedPosition().getX());
+    SmartDashboard.putNumber("odometryY", poseEstimator.getEstimatedPosition().getY());
 
     // AdvantageScope Logging
-    double[] logData = {
-        m_frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
-        m_frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
-        m_rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
-        m_rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
+    double[] LOG_DATA = {
+        frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
+        frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
+        rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
+        rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
     };
     SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
   }
@@ -114,7 +105,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The pose.
    */
   public Pose2d getPose() {
-    return m_poseEstimator.getEstimatedPosition();
+    return poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -127,49 +118,12 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
-    // If we are rotating, reset the timer
-    if (rotation != 0) {
-      m_headingCorrectionTimer.reset();
-    }
-
-    /*
-     * Heading correction helps maintain the same heading and
-     * prevents rotational drive while our robot is translating
-     * 
-     * For heading correction we use a timer to ensure that we
-     * lose all rotational momentum before saving the heading
-     * that we want to maintain
-     */
-
-    // TODO: Test heading correction without timer
-    // TODO: Test heading correction using gyro's rotational velocity (if it is 0
-    // then set heading instead of timer)
-
-    // Save our desired rotation to a variable we can add our heading correction
-    // adjustments to
-    double calculatedRotation = rotation;
-
-    double currentAngle = MathUtil.angleModulus(m_gyro.getRotation2d().getRadians());
-
-    // If we are not translating or if not enough time has passed since the last
-    // time we rotated
-    if ((xSpeed == 0 && ySpeed == 0)
-        || m_headingCorrectionTimer.get() < DriveConstants.kHeadingCorrectionTurningStopTime) {
-      // Update our desired angle
-      m_headingCorrectionPID.setSetpoint(currentAngle);
-    } else {
-      // If we are translating or if we have not rotated for a long enough time
-      // then maintain our desired angle
-      calculatedRotation = m_headingCorrectionPID.calculate(currentAngle);
-    }
-
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
-                Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle))
-            : new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
+        fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
+        Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(gyroAngle)) : 
+        new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
 
     setModuleStates(swerveModuleStates);
   }
@@ -181,24 +135,24 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     m_poseEstimator.resetPosition(
-        Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
+        Robot.isReal() ? gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
         new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            rearLeft.getPosition(),
+            rearRight.getPosition()
         },
         pose);
   }
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
-    m_gyro.reset();
-    m_gyroAngle = 0;
+    gyro.reset();
+    gyroAngle = 0;
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
-    m_poseEstimator.addVisionMeasurement(pose, timestamp);
+    poseEstimator.addVisionMeasurement(pose, timestamp);
   }
 
   /**
@@ -209,10 +163,10 @@ public class DriveSubsystem extends SubsystemBase {
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
+    frontLeft.setDesiredState(desiredStates[0]);
+    frontRight.setDesiredState(desiredStates[1]);
+    rearLeft.setDesiredState(desiredStates[2]);
+    rearRight.setDesiredState(desiredStates[3]);
 
     // AdvantageScope Logging
     double[] logData = {
@@ -225,7 +179,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Takes the integral of the rotation speed to find the current angle for the
     // simulator
-    m_gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
+    gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
         * Robot.kDefaultPeriod;
   }
 
