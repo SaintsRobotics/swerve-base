@@ -81,9 +81,9 @@ public class DriveSubsystem extends SubsystemBase {
         rearRight.getPosition()
     };
 
-   poseEstimator.update(Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(m_gyroAngle), swerveModulePositions);
+   poseEstimator.update(Robot.isReal() ? gyro.getRotation2d() : new Rotation2d(GYRO_ANGLE), swerveModulePositions);
 
-    field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+    field.setRobotPose(poseEstimator.getEstimatedPosition());
 
     SmartDashboard.putNumber("gyro angle", gyro.getAngle());
     SmartDashboard.putNumber("odometryX", poseEstimator.getEstimatedPosition().getX());
@@ -91,12 +91,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     // AdvantageScope Logging
     double[] LOG_DATA = {
-        frontLeft.getPosition().angle.getDegrees(), m_frontLeft.driveOutput,
-        frontRight.getPosition().angle.getDegrees(), m_frontRight.driveOutput,
-        rearLeft.getPosition().angle.getDegrees(), m_rearLeft.driveOutput,
-        rearRight.getPosition().angle.getDegrees(), m_rearRight.driveOutput,
+        frontLeft.getPosition().angle.getDegrees(), frontLeft.driveOutput,
+        frontRight.getPosition().angle.getDegrees(), frontRight.driveOutput,
+        rearLeft.getPosition().angle.getDegrees(), rearLeft.driveOutput,
+        rearRight.getPosition().angle.getDegrees(), rearRight.driveOutput,
     };
-    SmartDashboard.putNumberArray("AdvantageScope Swerve States", logData);
+    SmartDashboard.putNumberArray("AdvantageScope Swerve States", LOG_DATA);
   }
 
   /**
@@ -120,9 +120,10 @@ public class DriveSubsystem extends SubsystemBase {
   public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
     // Depending on whether the robot is being driven in field relative, calculate
     // the desired states for each of the modules
+    double calculatedRotation = rotation;
     SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, calculatedRotation,
-        Robot.isReal() ? m_gyro.getRotation2d() : new Rotation2d(gyroAngle)) : 
+        Robot.isReal() ? gyro.getRotation2d() : new Rotation2d(GYRO_ANGLE)) :
         new ChassisSpeeds(xSpeed, ySpeed, calculatedRotation));
 
     setModuleStates(swerveModuleStates);
@@ -134,8 +135,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    m_poseEstimator.resetPosition(
-        Robot.isReal() ? gyro.getRotation2d() : new Rotation2d(m_gyroAngle),
+    poseEstimator.resetPosition(
+        Robot.isReal() ? gyro.getRotation2d() : new Rotation2d(GYRO_ANGLE),
         new SwerveModulePosition[] {
             frontLeft.getPosition(),
             frontRight.getPosition(),
@@ -148,7 +149,7 @@ public class DriveSubsystem extends SubsystemBase {
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
     gyro.reset();
-    gyroAngle = 0;
+    GYRO_ANGLE = 0;
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestamp) {
@@ -169,17 +170,17 @@ public class DriveSubsystem extends SubsystemBase {
     rearRight.setDesiredState(desiredStates[3]);
 
     // AdvantageScope Logging
-    double[] logData = {
+    double[] LOG_DATA = {
         desiredStates[0].angle.getDegrees(), desiredStates[0].speedMetersPerSecond,
         desiredStates[1].angle.getDegrees(), desiredStates[1].speedMetersPerSecond,
         desiredStates[2].angle.getDegrees(), desiredStates[2].speedMetersPerSecond,
         desiredStates[3].angle.getDegrees(), desiredStates[3].speedMetersPerSecond,
     };
-    SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", logData);
+    SmartDashboard.putNumberArray("AdvantageScope Swerve Desired States", LOG_DATA);
 
     // Takes the integral of the rotation speed to find the current angle for the
     // simulator
-    gyroAngle += DriveConstants.kDriveKinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
+    GYRO_ANGLE += DriveConstants.kDriveKinematics.toChassisSpeeds(desiredStates).omegaRadiansPerSecond
         * Robot.kDefaultPeriod;
   }
 
