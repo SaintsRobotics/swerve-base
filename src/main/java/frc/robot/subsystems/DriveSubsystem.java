@@ -4,7 +4,8 @@
 
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -52,7 +53,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightDriveMotorReversed,
       DriveConstants.kRearRightTurningEncoderOffset);
 
-  private final AHRS m_gyro = new AHRS();
+  private final AHRS m_gyro = new AHRS(NavXComType.kI2C); //TODO: verify this is the correct type
   private double m_gyroAngle;
 
   private final Timer m_headingCorrectionTimer = new Timer();
