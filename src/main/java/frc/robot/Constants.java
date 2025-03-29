@@ -4,24 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Amp;
-import static edu.wpi.first.units.Units.Kilogram;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Pounds;
-
-import com.pathplanner.lib.config.ModuleConfig;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -30,10 +12,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.MomentOfInertia;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -173,138 +151,5 @@ public final class Constants {
     public static final boolean kUseVision = true;
     public static final boolean kUseLeftLL = true;
     public static final boolean kUseRightLL = true;
-  }
-
-  public static final class AutonConstants {
-    private static final Mass kRobotMass = Pounds.of(138);
-    private static final MomentOfInertia kMomentOfInertia = KilogramSquareMeters.of(1);
-    private static final double kCoefficientOfStaticFriction = 0.5;
-    private static final DCMotor kDriveMotorType = DCMotor.getNeoVortex(1);
-    private static final Current kMaxDriveCurrent = Amp.of(60);
-
-    public static final PIDConstants kTranslationConstants = new PIDConstants(3, 0, 0); // TODO: tune
-    public static final PIDConstants kRotationConstants = new PIDConstants(8, 0, 0); // TODO: tune
-    public static final RobotConfig kBotConfig = new RobotConfig(kRobotMass, kMomentOfInertia,
-        new ModuleConfig(Meter.of(DriveConstants.kWheelDiameterMeters / 2),
-            MetersPerSecond.of(DriveConstants.kMaxSpeedMetersPerSecond), kCoefficientOfStaticFriction, kDriveMotorType,
-            DriveConstants.kDrivingGearRatio, kMaxDriveCurrent, 4),
-        DriveConstants.kModulePositions);
-  }
-  
-  public static final class ElevatorConstants {
-    // TODO: Set motor and distance sensor ports
-    public static final int kElevatorMotorPort = 50;
-    public static final int kElevatorCANrangePort = 9;
-
-    // TODO: Tune PID for elevator
-    public static final double kPElevator = 0.9;
-    public static final double kMaxV = 50;
-    public static final double kMaxA = 50;
-
-    // TODO: Set these constants
-    public static final double kElevatorGearing = 0.2; //20 rot = 4 inch of first stage
-    // public static final double kElevatorUpMaxSpeed = 0.6;
-    public static final double kElevatorUpMaxSpeed = 1;
-
-    public static final double kElevatorDownMaxSpeed = -0.6;
-    public static final double kElevatorFeedForward = 0.03;
-    public static final double kElevatorSpeedScalar = 1;
-    public static final double kElevatorBottom = 0.2;
-    public static final double kElevatorTop = 21;
-    public static final double kElevatorSensorMaxTrustDistance = 10;
-
-    public static final double kL1Height = 0.2;
-    public static final double kL2Height = 3;
-    public static final double kL3Height = 10.5;
-    public static final double kL4Height = 20;
-
-    public static final double kPositionTolerance = 0.04; //TODO: tune
-    public static final double kVelocityTolerance = 1;
-
-    public static final double kLowHeightSlowdownThreshold = 1;
-    public static final double kLowHeightSlowdownMaxSpeed = -.1;
-
-    // inches
-    public static final double kSensorOffset = -4.40;
-
-    public static final double kBoundaryHintThreshold = 0.5;
-    public static final int kSampleCount = 5;
-  }
-
-  public static final class EndEffectorConstants{
-    // TODO: Set these constants
-    public static final int kPivotMotorPort = 52;
-    public static final int kEffectorMotorPort = 53;
-    public static final int kEndEffectorCANrangePort = 8;
-
-    public static final double kPEndEffector = 0.4;
-    public static final double kPivotMaxSpeedRetract = 0.4;
-    public static final double kPivotMaxSpeedExtend = -0.4;
-
-    public static final double kL1Pivot = 0.5;
-    public static final double kL23Pivot = 0.5;
-    public static final double kL4Pivot = 0.5;
-
-    public static final double kAlgaeIntakeSpeed = 0.75;
-    public static final double kCoralIntakeSpeed = -0.4;
-    public static final double kAlgaeOuttakeSpeed = -0.5;
-    public static final double kCoralOuttakeSpeed = -0.4;
-    public static final double kCoralReverseSpeed = 0.25;
-
-    public static final double kPivotTolerance = 0.05; // pivot tolerance in degrees
-
-    public static final double kSensorDistanceThreshold = 0.1; // meters, TODO: tune
-
-    public static final double kMinAlgaeExtension = 0.3;
-
-    public static final double kPivotFeedForwards = 0.00;
-
-    /**
-     * Radians.
-     * Used to round values near the wraparound to zero.
-     * Lower numbers are more reliable.
-     * Pivot should never physically reach this angle
-     */
-    public static final double kPivotWraparoundPoint = 0.75 * Math.PI * 2;
-
-    // radians
-    public static final double kAgressiveComponent = Math.toRadians(.25);
-
-    /**
-     * Holds the safe minimum and maximum limits of end effector's pivot based on
-     * elevator height
-     * Each key is the starting (from zero) elevator height for the limit. Height is inclusive
-     * Each value is a Pair with the minimum and maximum pivot angles (inclusive) in radians,
-     * respectively
-     * 
-     * For example:
-     * 
-     * Map.ofEntries(
-     * Map.entry(-100000.0, Pair.of(0.0, Math.PI / 2)),
-     * Map.entry(0.0, Pair.of(0.0, Math.PI / 2)),
-     * Map.entry(1.0, Pair.of(Math.PI / 2, Math.PI))
-     * Map.entry(100000.0, Pair.of(Math.PI / 2, Math.PI))
-     * );
-     * 
-     * means that:
-     * pivot angles between elevator heights [-1, 0) must be from 0 to 90 degrees
-     *  this acts as a safeguard for negative values, should be less than min
-     *  physical height
-     * pivot angles between elevator heights [0, 1) must be from 0 to 90 degrees,
-     * pivot angles between elevator heights [1, 5) must be from 90 to 180
-     * pivot angles between elevator heights [5, infinity) must be from 90 to 180
-     * degrees
-     *  this acts as a safeguard for very high values, should be greater than max
-     *  physical height
-     */
-    public static final NavigableMap<Double, List<Pair<Double, Double>>> kSafePivotPositions = new TreeMap<>(
-        Map.ofEntries(
-            Map.entry(-100000.0, Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
-            Map.entry(-10000.0,  Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
-            Map.entry(3.5,    Arrays.asList(Pair.of(0.25, 0.45 * Math.PI * 2))),
-            Map.entry(13.0,    Arrays.asList(Pair.of(0.02, 0.45 * Math.PI * 2))),
-            Map.entry(1000.0,  Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2))),
-            Map.entry(10000.0, Arrays.asList(Pair.of(0.02, 0.62 * Math.PI * 2)))
-        )); 
   }
 }
