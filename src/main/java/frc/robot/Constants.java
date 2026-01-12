@@ -64,10 +64,10 @@ public final class Constants {
     public static final int kFrontRightTurningMotorPort = 22;
     public static final int kRearRightTurningMotorPort = 26;
 
-    public static final int kFrontLeftTurningEncoderPort = 13;
-    public static final int kRearLeftTurningEncoderPort = 15;
-    public static final int kFrontRightTurningEncoderPort = 19;
-    public static final int kRearRightTurningEncoderPort = 11;
+    public static final int kFrontLeftTurningEncoderPort = 19;
+    public static final int kRearLeftTurningEncoderPort = 17;
+    public static final int kFrontRightTurningEncoderPort = 20;
+    public static final int kRearRightTurningEncoderPort = 18;
 
     // TODO: Test motor orientations before driving on an actual robot
     public static final boolean kFrontLeftDriveMotorReversed = false;
