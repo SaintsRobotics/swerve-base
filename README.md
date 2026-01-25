@@ -1,21 +1,26 @@
-# swerve-base
-Code for a basic swerve drive base
-
-## Features:
-* Swerve drive
-* Heading correction
-* WPILib Sim support
-* AdvantageScope support
-* Pose estimation
-
-## TODO/WIP:
-* Auton setup
-* Test heading correction
+# Reefscape2025
+FRC team Saints Robotics 1899's code for the 2025 season.
 
 
-### Sim Controls
-* W, A, S, D - Basic field-relative translation movement
-* Left Arrow, Right Arrow - Rotational movement
-* R, E - Increase/Decrease speed scaling (needs to be held down)
-* N (Holding down) + W, A, S, D - Robot Relative driving
-* Comma - Reset heading
+## Commit Message Prefixes
+
+All commit messages must start with one of the following prefixes.
+
+* **"docs:"** - Documentation changes
+* **"feat:"** - New features
+* **"fix:"** - Bug fixes
+* **"refactor:"** - Changes that affect code organization
+* **"style:"** - Changes that are formatting related (white-space, formatting, missing semi-colons, etc)
+* **"test:"** - New tests or correcting existing tests
+* **"perf:"** - Improves performance
+* **"chore:"** - Miscellaneous changes
+
+### Examples
+
+* feat: created swerve functions
+* fix: autonomous turning bug
+* refactor: decoupled functions into new file
+* docs: added more info about the codebase
+* style: formatted the gradle file
+* test: fixed deadzone test
+* chore: licensing and credits

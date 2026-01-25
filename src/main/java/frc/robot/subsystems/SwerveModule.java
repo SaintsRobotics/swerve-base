@@ -4,29 +4,33 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CANcoderConfigurator;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class SwerveModule {
-  private final CANSparkMax m_driveMotor;
-  private final CANSparkMax m_turningMotor;
+  private final SparkFlex m_driveMotor;
+  private final SparkFlex m_turningMotor;
+
+  private final SparkFlexConfig m_driveMotorConfig = new SparkFlexConfig();
+  private final SparkFlexConfig m_turningMotorConfig = new SparkFlexConfig();
 
   private final CANcoder m_turningEncoder;
-  private final CANcoderConfigurator m_turningEncoderConfigurator;
 
-  private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0,
-      0);
+  private final PIDController m_turningPIDController = new PIDController(DriveConstants.kPModuleTurningController, 0, 0, Constants.kFastPeriodicPeriod);
 
   private SwerveModuleState m_state = new SwerveModuleState();
   private double m_distance;
@@ -37,34 +41,29 @@ public class SwerveModule {
   /**
    * Constructs a {@link SwerveModule}.
    *
-   * @param driveMotorPort       The port of the drive motor.
-   * @param turningMotorPort     The port of the turning motor.
-   * @param turningEncoderPort   The port of the turning encoder.
-   * @param driveMotorReversed   Whether the drive motor is reversed.
-   * @param turningEncoderOffset Offset of the turning encoder.
+   * @param driveMotorPort     The port of the drive motor.
+   * @param turningMotorPort   The port of the turning motor.
+   * @param turningEncoderPort The port of the turning encoder.
+   * @param driveMotorReversed Whether the drive motor is reversed.
    */
   public SwerveModule(
       int driveMotorPort,
       int turningMotorPort,
       int turningEncoderPort,
-      boolean driveMotorReversed,
-      double turningEncoderOffset) {
-    m_driveMotor = new CANSparkMax(driveMotorPort, MotorType.kBrushless);
-    m_turningMotor = new CANSparkMax(turningMotorPort, MotorType.kBrushless);
+      boolean driveMotorReversed) {
+    m_driveMotor = new SparkFlex(driveMotorPort, MotorType.kBrushless);
+    m_turningMotor = new SparkFlex(turningMotorPort, MotorType.kBrushless);
     m_turningEncoder = new CANcoder(turningEncoderPort);
-    m_turningEncoderConfigurator = m_turningEncoder.getConfigurator();
 
     // converts default units to meters per second
-    m_driveMotor.getEncoder().setVelocityConversionFactor(
-        DriveConstants.kWheelDiameterMeters * Math.PI / 60 / DriveConstants.kDrivingGearRatio);
+    m_driveMotorConfig.encoder.positionConversionFactor(
+        DriveConstants.kWheelDiameterMeters * Math.PI / DriveConstants.kDrivingGearRatio);
+    m_driveMotorConfig.inverted(driveMotorReversed);
 
-    m_driveMotor.setInverted(driveMotorReversed);
+    m_turningMotorConfig.idleMode(IdleMode.kBrake);
 
-    m_turningMotor.setIdleMode(IdleMode.kBrake);
-
-    // TODO: CANcoder offsets are now set on the device manually using Pheonix Tuner
-    // (or maybe Pheonix X)
-    m_turningEncoderConfigurator.apply(new MagnetSensorConfigs().withMagnetOffset(-turningEncoderOffset));
+    m_driveMotor.configure(m_driveMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_turningMotor.configure(m_turningMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
@@ -93,14 +92,19 @@ public class SwerveModule {
    * @param desiredState Desired state with speed and angle.
    */
   public void setDesiredState(SwerveModuleState desiredState) {
-    m_state = SwerveModuleState.optimize(desiredState, getEncoderAngle(m_turningEncoder));
+    m_state = desiredState;
+    m_state.optimize(getEncoderAngle(m_turningEncoder));
     driveOutput = m_state.speedMetersPerSecond / DriveConstants.kMaxSpeedMetersPerSecond;
 
-    turnOutput = m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
+    turnOutput = -m_turningPIDController.calculate(getEncoderAngle(m_turningEncoder).getRadians(),
         m_state.angle.getRadians());
 
     m_driveMotor.set(driveOutput);
     m_turningMotor.set(turnOutput);
+
+    if (m_driveMotor.getDeviceId() == DriveConstants.kFrontLeftDriveMotorPort) {
+      SmartDashboard.putNumber("drive output", m_driveMotor.get());
+    }
   }
 
   /**

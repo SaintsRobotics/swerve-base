@@ -4,10 +4,11 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -26,11 +27,14 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
   private final XboxController m_driverController = new XboxController(IOConstants.kDriverControllerPort);
+  private final XboxController m_operatorController = new XboxController(IOConstants.kOperatorControllerPort);
+
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -41,45 +45,61 @@ public class RobotContainer {
                     -m_driverController.getLeftY(),
                     IOConstants.kControllerDeadband)
                     * DriveConstants.kMaxSpeedMetersPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
-                        * IOConstants.kSlowModeScalar)
+                    * (1 - (m_driverController
+                        .getRightBumperButton() ? IOConstants.kSlowModeScalar : 0))
                     * 0.8,
                 MathUtil.applyDeadband(
                     -m_driverController.getLeftX(),
                     IOConstants.kControllerDeadband)
                     * DriveConstants.kMaxSpeedMetersPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
+                    * (1 - (m_driverController
+                        .getRightBumperButton() ? 1 : 0)
                         * IOConstants.kSlowModeScalar)
                     * 0.8,
                 MathUtil.applyDeadband(
                     m_driverController.getRightX(),
                     IOConstants.kControllerDeadband)
                     * DriveConstants.kMaxAngularSpeedRadiansPerSecond
-                    * (1 - m_driverController
-                        .getLeftTriggerAxis()
+                    * (1 - (m_driverController
+                        .getRightBumperButton() ? 1 : 0)
                         * IOConstants.kSlowModeScalar)
-                    / 2,
-                !m_driverController.getRightBumper()),
-            m_robotDrive));
-  }
+                    * -1,
+                true),
+                    m_robotDrive));
+}
+
 
   /**
-   * Use this method to define your button->command mappings.
+   *  Driver Controls:
+   * 
+   *    Driving:
+   *      left axis X/Y                         axis  Translation
+   *      right axis X                          axis  Rotation
+   *      start                                 press Reset heading
+   *      back                                  press Reset position
+
    */
   private void configureBindings() {
+      // -------- driving bindings -------- //
+
+    // driver reset heading
     new JoystickButton(m_driverController, Button.kStart.value)
         .onTrue(new InstantCommand(m_robotDrive::zeroHeading, m_robotDrive));
+
+    // driver reset odometry
+    new JoystickButton(m_driverController, Button.kBack.value)
+        .onTrue(new InstantCommand(() -> m_robotDrive.resetOdometry(new Pose2d()), m_robotDrive));
   }
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
+   * This periodic loop runs every 10ms (100Hz)
+   * 
+   * <p>
+   * Should be used for any code that needs to be run more frequently than the
+   * default 20ms loop (50Hz) such as PID Controllers.
+   * </p>
    */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return null;
+  public void fastPeriodic() {
+    m_robotDrive.fastPeriodic();
   }
 }
